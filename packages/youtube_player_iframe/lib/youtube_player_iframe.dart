@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +13,7 @@ import 'src/helpers/youtube_value_provider.dart';
 
 import 'src/players/youtube_player_mobile.dart'
     if (dart.library.html) 'src/players/youtube_player_web.dart';
+import 'src/players/youtube_player_windows.dart';
 
 export 'src/controller.dart';
 export 'src/enums/playback_rate.dart';
@@ -54,12 +57,26 @@ class YoutubePlayerIFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: aspectRatio,
-      child: RawYoutubePlayer(
-        controller: controller ?? context.ytController,
-        gestureRecognizers: gestureRecognizers,
-      ),
-    );
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+      return AspectRatio(
+        aspectRatio: aspectRatio,
+        child: RawYoutubePlayer(
+          controller: controller ?? context.ytController,
+          gestureRecognizers: gestureRecognizers,
+        ),
+      );
+    }
+
+    if (Platform.isWindows) {
+      return AspectRatio(
+        aspectRatio: aspectRatio,
+        child: RawWindowsYoutubePlayer(
+          controller: controller ?? context.ytController,
+          gestureRecognizers: gestureRecognizers,
+        ),
+      );
+    }
+
+    return Container(child: const Text('Platform not supported'));
   }
 }
